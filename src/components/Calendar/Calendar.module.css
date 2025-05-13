@@ -1,0 +1,252 @@
+.container {
+  position: relative;
+  width: 100%;
+  margin: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.dateInput {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+  background-color: #fff;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.dateInput:hover {
+  border-color: #7e6bf5;
+}
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.modalContent {
+  position: absolute;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 240px;
+  padding: 8px;
+  transition: transform 0.2s ease;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  padding: 2px;
+  font-size: 13px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.dayLabel {
+  padding: 2px 0;
+  text-align: center;
+  font-size: 10px;
+  color: #999;
+  font-weight: 500;
+}
+
+.dayCell {
+  height: 28px;
+  width: 28px;
+  border-radius: 4px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  color: #333;
+  transition: all 0.15s ease;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+.dayCell:hover:not(.faded) {
+  background-color: #f0f0f0;
+}
+
+.selected {
+  background-color: #7e6bf5;
+  color: white;
+  font-weight: 500;
+}
+
+.selected:hover {
+  background-color: #6c5ce7 !important;
+}
+
+.faded {
+  color: #bbb;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.faded:hover {
+  background-color: transparent;
+}
+
+.timePicker {
+  border-top: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin: 6px 0;
+  padding: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.timeColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.timeText {
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.timeCell {
+  padding: 1px 4px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+
+.timeCell:hover:not(.active) {
+  background-color: #eee;
+}
+
+.active {
+  background-color: #7e6bf5;
+  color: white;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #eee;
+}
+
+.clear {
+  color: #7e7af7;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clear:hover {
+  background-color: #f5f5f5;
+}
+
+.confirm {
+  background-color: #7e6bf5;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.confirm:hover {
+  background-color: #6c5ce7;
+}
+
+.slideIn {
+  animation: modalSlideIn 0.2s ease forwards;
+}
+
+.slideOut {
+  animation: modalSlideOut 0.2s ease forwards;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 260px;
+    max-width: calc(100% - 32px);
+    padding: 12px;
+  }
+
+  .dayCell {
+    height: 32px;
+    width: 32px;
+    font-size: 13px;
+  }
+
+  .actions {
+    padding: 8px 0;
+    padding-top: 20px;
+  }
+}
