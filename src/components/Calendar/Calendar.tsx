@@ -2,11 +2,47 @@ import React, { useState, useRef, useEffect } from "react";
 import { CalendarHeader } from "./CalendarHeader";
 import { CalendarGrid } from "./CalendarGrid";
 import { TimePicker } from "./TimePicker";
+import { CalendarProps, CalendarVariant } from "./types";
 import styles from "./Calendar.module.css";
+import { formatDate as utilFormatDate, isSameDate } from "./utils";
 
-export const Calendar: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+export const Calendar: React.FC<CalendarProps> = ({
+  variant = "default",
+  value,
+  onChange,
+  minDate,
+  maxDate,
+  theme = {},
+  inputStyles = {},
+  format,
+  disabled = false,
+  readOnly = false,
+  clearable = true,
+  placement = "auto",
+  zIndex = 1000,
+  className,
+  style,
+  onOpen,
+  onClose,
+  onMonthChange,
+  onYearChange,
+  yearRange,
+}) => {
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(today);
+  const [selectedDates, setSelectedDates] = useState<Date[]>(() => {
+    // If value is provided, use it
+    if (value) {
+      return Array.isArray(value) ? value : [value];
+    }
+
+    // If no value is provided and it's not a multi-select, initialize with today's date
+    if (variant !== "multi" && variant !== "range") {
+      return [today];
+    }
+
+    return [];
+  });
   const [hour, setHour] = useState(12);
   const [minute, setMinute] = useState(0);
   const [isAM, setIsAM] = useState(true);
@@ -16,84 +52,253 @@ export const Calendar: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [modalStyle, setModalStyle] = useState({});
 
+  const handleDateSelect = (date: Date) => {
+    if (variant === "range") {
+      if (selectedDates.length === 1) {
+        const [firstDate] = selectedDates;
+        const newDates =
+          firstDate < date ? [firstDate, date] : [date, firstDate];
+        setSelectedDates(newDates);
+        onChange?.(newDates);
+        hideModal(); // Only close after selecting both dates
+      } else {
+        setSelectedDates([date]);
+        onChange?.([date]); // Pass the partial selection to the parent component
+      }
+    } else if (variant === "multi") {
+      // For multi-select, toggle the selection of the date
+      const isSelected = selectedDates.some((d) => isSameDate(d, date));
+      let newDates;
+
+      if (isSelected) {
+        // Remove date if already selected
+        newDates = selectedDates.filter((d) => !isSameDate(d, date));
+      } else {
+        // Add date if not selected
+        newDates = [...selectedDates, date];
+      }
+
+      setSelectedDates(newDates);
+      onChange?.(newDates);
+    } else {
+      setSelectedDates([date]);
+      if (variant !== "time") {
+        onChange?.(date);
+        hideModal();
+      }
+    }
+  };
+
   const handleConfirm = () => {
-    if (selectedDate) {
-      const fullDate = new Date(selectedDate);
-      fullDate.setHours(isAM ? hour % 12 : (hour % 12) + 12);
-      fullDate.setMinutes(minute);
-      alert(`Confirmed: ${fullDate}`);
+    if (selectedDates.length > 0) {
+      if (variant === "time") {
+        const date = selectedDates[0];
+        date.setHours(isAM ? hour % 12 : (hour % 12) + 12);
+        date.setMinutes(minute);
+        onChange?.(date);
+      } else if (variant === "multi") {
+        // For multi-select, just pass the array of selected dates
+        onChange?.(selectedDates);
+      } else if (variant === "range" && selectedDates.length === 2) {
+        // For range, pass the array of start and end dates
+        onChange?.(selectedDates);
+      }
       hideModal();
     }
   };
 
-  const formattedInput = selectedDate
-    ? `${selectedDate.toDateString()} ${hour
+  const formatDate = (date: Date) => {
+    if (!date) return "";
+
+    // For default variant, strip any time patterns from the format
+    if (variant === "default") {
+      const defaultFormat = format
+        ? format.toString().replace(/[H|h|M|s|:|\s]+/g, "") || "dd/mm/yyyy"
+        : "dd/mm/yyyy";
+      return utilFormatDate(date, defaultFormat);
+    }
+
+    if (variant === "time") {
+      return `${utilFormatDate(date, format || "dd/mm/yyyy")} ${hour
         .toString()
         .padStart(2, "0")}:${minute.toString().padStart(2, "0")} ${
         isAM ? "AM" : "PM"
-      }`
-    : "";
+      }`;
+    }
 
-  const showModalWithPosition = () => {
-    if (inputRef.current) {
-      const rect = inputRef.current.getBoundingClientRect();
-      const modalWidth = 240; // Our new more compact width
-      const modalHeight = 340; // Approximate height of compact calendar
-      const padding = 8;
+    return utilFormatDate(date, format || "dd/mm/yyyy");
+  };
 
-      const viewportHeight = window.innerHeight;
-      const viewportWidth = window.innerWidth;
+  const getFormattedValue = () => {
+    if (!selectedDates.length) return "";
 
-      // For mobile devices, center in screen
-      if (viewportWidth <= 768) {
-        setModalStyle({});
-        setShowModal(true);
-        setAnimateOut(false);
-        return;
-      }
+    if (variant === "range" && selectedDates.length === 2) {
+      return `${formatDate(selectedDates[0])} - ${formatDate(
+        selectedDates[1]
+      )}`;
+    }
 
-      // Calculate available space
+    if (variant === "multi") {
+      return selectedDates.map((date) => formatDate(date)).join(", ");
+    }
+
+    return formatDate(selectedDates[0]);
+  };
+
+  const calculateModalPosition = () => {
+    if (!inputRef.current) return;
+
+    const rect = inputRef.current.getBoundingClientRect();
+    const modalWidth = 240;
+    const modalHeight = variant === "time" ? 380 : 340;
+    const padding = 8;
+
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const scrollY = window.scrollY;
+    const scrollX = window.scrollX;
+
+    // Mobile view - try to position near input first
+    if (viewportWidth <= 768) {
       const spaceBelow = viewportHeight - rect.bottom;
       const spaceAbove = rect.top;
 
-      // Determine vertical position
-      let top;
       if (spaceBelow >= modalHeight + padding) {
-        // Prefer below the input
-        top = rect.bottom + window.scrollY + padding;
+        // Show below input
+        setModalStyle({
+          position: "fixed",
+          top: `${rect.bottom + padding}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "calc(100% - 32px)",
+          maxWidth: "260px",
+          zIndex,
+        });
       } else if (spaceAbove >= modalHeight + padding) {
-        // Try above if there's space
-        top = rect.top + window.scrollY - modalHeight - padding;
+        // Show above input
+        setModalStyle({
+          position: "fixed",
+          bottom: `${viewportHeight - rect.top + padding}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "calc(100% - 32px)",
+          maxWidth: "260px",
+          zIndex,
+        });
       } else {
-        // If no ideal space, position where most visible
-        const centerY = rect.top + rect.height / 2;
-        top = Math.max(
-          padding + window.scrollY,
-          Math.min(
-            centerY - modalHeight / 2 + window.scrollY,
-            viewportHeight - modalHeight - padding + window.scrollY
-          )
-        );
+        // Fallback to center if no space
+        setModalStyle({
+          position: "fixed",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "calc(100% - 32px)",
+          maxWidth: "260px",
+          zIndex,
+        });
       }
-
-      // Horizontal position - try to align with input field
-      let left = rect.left;
-
-      // Ensure calendar doesn't go off-screen horizontally
-      if (left + modalWidth > viewportWidth - padding) {
-        left = viewportWidth - modalWidth - padding;
-      }
-      if (left < padding) {
-        left = padding;
-      }
-
-      setModalStyle({
-        top: `${top}px`,
-        left: `${left}px`,
-      });
-      setShowModal(true);
-      setAnimateOut(false);
+      return;
     }
+
+    // Desktop positioning logic
+    let position: {
+      top?: string;
+      bottom?: string;
+      left?: string;
+      right?: string;
+      transform?: string;
+      maxHeight?: string;
+      overflowY?: "auto" | "scroll" | "hidden" | "visible";
+      "data-placement"?: string;
+    } = {};
+
+    if (placement === "auto") {
+      // Calculate available space in all directions
+      const spaceAbove = rect.top;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceLeft = rect.left;
+      const spaceRight = viewportWidth - rect.right;
+
+      // Determine vertical position
+      if (spaceBelow >= modalHeight + padding) {
+        // Prefer below
+        position.top = `${rect.bottom + scrollY + padding}px`;
+      } else if (spaceAbove >= modalHeight + padding) {
+        // Try above
+        position.top = `${rect.top + scrollY - modalHeight - 10 - padding}px`;
+      } else {
+        // Center vertically in the available space
+        const availableHeight = Math.max(spaceAbove, spaceBelow);
+        if (spaceBelow >= spaceAbove) {
+          position.top = `${rect.bottom + scrollY + padding}px`;
+          if (modalHeight > availableHeight) {
+            position.maxHeight = `${availableHeight - padding * 2}px`;
+            position.overflowY = "auto";
+          }
+        } else {
+          position.bottom = `${
+            viewportHeight - rect.top + scrollY - padding
+          }px`;
+          if (modalHeight > availableHeight) {
+            position.maxHeight = `${availableHeight - padding * 2}px`;
+            position.overflowY = "auto";
+          }
+        }
+      }
+
+      // Determine horizontal position
+      const preferredLeft = rect.left + scrollX;
+      const preferredRight = preferredLeft + modalWidth;
+
+      if (preferredRight <= viewportWidth - padding) {
+        // Align with input left if fits
+        position.left = `${preferredLeft}px`;
+      } else if (spaceLeft >= modalWidth + padding) {
+        // Align with input right if fits
+        position.right = `${viewportWidth - rect.right - scrollX}px`;
+      } else {
+        // Center horizontally if no space on either side
+        position.left = "50%";
+        position.transform = "translateX(-50%)";
+      }
+    } else {
+      switch (placement) {
+        case "top":
+          position.bottom = `${viewportHeight - rect.top + scrollY}px`;
+          position.left = `${rect.left + scrollX}px`;
+          position["data-placement"] = "top";
+          break;
+        case "bottom":
+          position.top = `${rect.bottom + scrollY}px`;
+          position.left = `${rect.left + scrollX}px`;
+          position["data-placement"] = "bottom";
+          break;
+        case "left":
+          position.top = `${rect.top + scrollY}px`;
+          position.right = `${viewportWidth - rect.left + scrollX}px`;
+          position["data-placement"] = "left";
+          break;
+        case "right":
+          position.top = `${rect.top + scrollY}px`;
+          position.left = `${rect.right + scrollX}px`;
+          position["data-placement"] = "right";
+          break;
+      }
+    }
+
+    setModalStyle({
+      position: "absolute",
+      ...position,
+      zIndex,
+    });
+  };
+
+  const showModalWithPosition = () => {
+    if (disabled || readOnly) return;
+    calculateModalPosition();
+    setShowModal(true);
+    setAnimateOut(false);
+    onOpen?.();
   };
 
   const hideModal = () => {
@@ -101,37 +306,90 @@ export const Calendar: React.FC = () => {
     setTimeout(() => {
       setShowModal(false);
       setAnimateOut(false);
+      onClose?.();
     }, 200);
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      modalRef.current &&
-      !modalRef.current.contains(event.target as Node) &&
-      inputRef.current &&
-      !inputRef.current.contains(event.target as Node)
-    ) {
-      hideModal();
-    }
+  const handleClear = () => {
+    setSelectedDates([]);
+    onChange?.(null);
+    hideModal();
+  };
+
+  const handleMonthChange = (date: Date) => {
+    setCurrentDate(date);
+    onMonthChange?.(date);
+  };
+
+  const handleYearChange = (date: Date) => {
+    setCurrentDate(date);
+    onYearChange?.(date);
   };
 
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        hideModal();
+      }
+    };
+
     if (showModal) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showModal]);
 
+  // Listen for external value changes
+  useEffect(() => {
+    if (value) {
+      setSelectedDates(Array.isArray(value) ? value : [value]);
+    }
+  }, [value]);
+
+  // Notify parent of default value on initial render if needed
+  useEffect(() => {
+    // If we have a default date selected (today) and no value was provided initially
+    if (selectedDates.length > 0 && !value) {
+      if (variant === "multi" || variant === "range") {
+        onChange?.(selectedDates);
+      } else {
+        onChange?.(selectedDates[0]);
+      }
+    }
+    // We want this to run only once on mount, hence the empty dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Apply theme styles
+  const themeStyles = {
+    "--primary-color": theme.primaryColor || "#7e6bf5",
+    "--background-color": theme.backgroundColor || "#fff",
+    "--text-color": theme.textColor || "#333",
+    "--selected-text-color": theme.selectedTextColor || "#fff",
+    "--today-color": theme.todayColor || "#e6e6e6",
+    "--border-color": theme.borderColor || "#ddd",
+    "--hover-color": theme.hoverColor || "#f0f0f0",
+  } as React.CSSProperties;
+
   return (
-    <div className={styles.container}>
+    <div
+      className={`${styles.container} ${className || ""}`}
+      style={{ ...style, ...themeStyles }}
+    >
       <input
         ref={inputRef}
-        className={styles.dateInput}
-        value={formattedInput}
+        className={`${styles.dateInput} ${inputStyles.className || ""}`}
+        style={inputStyles.style}
+        value={getFormattedValue()}
         onClick={showModalWithPosition}
         readOnly
+        disabled={disabled}
+        placeholder={inputStyles.placeholder}
       />
 
       {showModal && (
@@ -163,33 +421,42 @@ export const Calendar: React.FC = () => {
                   )
                 )
               }
+              onMonthChange={handleMonthChange}
+              onYearChange={handleYearChange}
+              yearRange={yearRange}
             />
             <CalendarGrid
               currentDate={currentDate}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
+              selectedDates={selectedDates}
+              onSelectDate={handleDateSelect}
+              minDate={minDate}
+              maxDate={maxDate}
+              isRange={variant === "range"}
+              isMulti={variant === "multi"}
             />
-            <TimePicker
-              hour={hour}
-              minute={minute}
-              isAM={isAM}
-              setHour={setHour}
-              setMinute={setMinute}
-              setIsAM={setIsAM}
-            />
+            {variant === "time" && (
+              <TimePicker
+                hour={hour}
+                minute={minute}
+                isAM={isAM}
+                setHour={setHour}
+                setMinute={setMinute}
+                setIsAM={setIsAM}
+              />
+            )}
             <div className={styles.actions}>
-              <button
-                onClick={() => {
-                  setSelectedDate(null);
-                  hideModal();
-                }}
-                className={styles.clear}
-              >
-                Clear
-              </button>
-              <button onClick={handleConfirm} className={styles.confirm}>
-                Confirm
-              </button>
+              {clearable && (
+                <button onClick={handleClear} className={styles.clear}>
+                  Clear
+                </button>
+              )}
+              {(variant === "time" ||
+                (variant === "range" && selectedDates.length === 2) ||
+                variant === "multi") && (
+                <button onClick={handleConfirm} className={styles.confirm}>
+                  Confirm
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -18,17 +18,23 @@
 .dateInput {
   width: 100%;
   padding: 6px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 13px;
-  color: #333;
-  background-color: #fff;
+  color: var(--text-color);
+  background-color: var(--background-color);
   transition: all 0.15s ease;
   cursor: pointer;
 }
 
-.dateInput:hover {
-  border-color: #7e6bf5;
+.dateInput:hover:not(:disabled) {
+  border-color: var(--primary-color);
+}
+
+.dateInput:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .modalBackdrop {
@@ -38,12 +44,12 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: var(--z-index, 1000);
 }
 
 .modalContent {
   position: absolute;
-  background: #fff;
+  background: var(--background-color);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   width: 240px;
@@ -58,6 +64,102 @@
   margin-bottom: 4px;
   padding: 2px;
   font-size: 13px;
+  color: var(--text-color);
+}
+
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerButton {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-color);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.headerButton:hover {
+  background-color: var(--hover-color);
+}
+
+.selectContainer {
+  position: relative;
+}
+
+.headerSelect {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.headerSelect:hover {
+  background-color: var(--hover-color);
+}
+
+.selectDropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.yearDropdown {
+  min-width: 80px;
+}
+
+.selectOption {
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.selectOption:hover {
+  background-color: var(--hover-color);
+}
+
+.selectOption.selected {
+  background-color: var(--primary-color);
+  color: var(--selected-text-color);
+}
+
+.rotated {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
 }
 
 .grid {
@@ -85,25 +187,29 @@
   justify-content: center;
   cursor: pointer;
   font-size: 12px;
-  color: #333;
+  color: var(--text-color);
   transition: all 0.15s ease;
   padding: 0;
   margin: 0;
   background: transparent;
 }
 
-.dayCell:hover:not(.faded) {
-  background-color: #f0f0f0;
+.dayCell:hover:not(.faded):not(:disabled) {
+  background-color: var(--hover-color);
 }
 
 .selected {
-  background-color: #7e6bf5;
-  color: white;
+  background-color: var(--primary-color) !important;
+  color: var(--selected-text-color) !important;
   font-weight: 500;
 }
 
-.selected:hover {
-  background-color: #6c5ce7 !important;
+.inRange {
+  background-color: var(--hover-color);
+}
+
+.today {
+  border: 1px solid var(--today-color);
 }
 
 .faded {
@@ -113,50 +219,104 @@
   opacity: 0.5;
 }
 
-.faded:hover {
-  background-color: transparent;
+.timePicker {
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 6px 0;
+  padding: 15px 4px;
 }
 
-.timePicker {
-  border-top: 1px solid #eee;
+.timeSection {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
-  margin: 6px 0;
-  padding: 4px;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  gap: 8px;
 }
 
 .timeColumn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
+  gap: 4px;
 }
 
 .timeText {
-  font-size: 14px;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-color);
+  width: 32px;
+  text-align: center;
 }
 
-.timeCell {
-  padding: 1px 4px;
-  border-radius: 2px;
+.timeSeparator {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin: 0 4px;
+  padding-top: 28px;
+}
+
+.timeButton {
+  background: none;
+  border: none;
+  padding: 4px;
   cursor: pointer;
+  color: var(--text-color);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.timeButton:hover {
+  background-color: var(--hover-color);
+}
+
+.ampmToggle {
+  position: relative;
+  background-color: var(--hover-color);
+  border-radius: 20px;
+  padding: 2px;
+  display: flex;
+  gap: 4px;
+  width: 100px;
+}
+
+.ampmSlider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(50% - 4px);
+  height: calc(100% - 4px);
+  background-color: var(--primary-color);
+  border-radius: 16px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.ampmSlider[data-am="false"] {
+  transform: translateX(calc(100% + 4px));
+}
+
+.ampmButton {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 6px 0;
   font-size: 12px;
-  transition: all 0.15s ease;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: color 0.3s ease;
+  color: var(--text-color);
 }
 
-.timeCell:hover:not(.active) {
-  background-color: #eee;
-}
-
-.active {
-  background-color: #7e6bf5;
-  color: white;
+.ampmButton.active {
+  color: var(--selected-text-color);
 }
 
 .actions {
@@ -165,11 +325,11 @@
   gap: 6px;
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color);
 }
 
 .clear {
-  color: #7e7af7;
+  color: var(--primary-color);
   background: none;
   border: none;
   padding: 4px 8px;
@@ -180,12 +340,12 @@
 }
 
 .clear:hover {
-  background-color: #f5f5f5;
+  background-color: var(--hover-color);
 }
 
 .confirm {
-  background-color: #7e6bf5;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--selected-text-color);
   padding: 4px 12px;
   border-radius: 4px;
   border: none;
@@ -195,7 +355,7 @@
 }
 
 .confirm:hover {
-  background-color: #6c5ce7;
+  filter: brightness(0.9);
 }
 
 .slideIn {
@@ -230,10 +390,10 @@
 
 @media (max-width: 768px) {
   .modalContent {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
     width: 260px;
     max-width: calc(100% - 32px);
     padding: 12px;
@@ -248,5 +408,137 @@
   .actions {
     padding: 8px 0;
     padding-top: 20px;
+  }
+}
+
+.modalContent[data-placement="top"] {
+  bottom: 100%;
+  margin-bottom: 8px;
+}
+
+.modalContent[data-placement="bottom"] {
+  top: 100%;
+  margin-top: 8px;
+}
+
+.modalContent[data-placement="left"] {
+  right: 100%;
+  margin-right: 8px;
+}
+
+.modalContent[data-placement="right"] {
+  left: 100%;
+  margin-left: 8px;
+}
+
+.modalWithOptions {
+  display: flex;
+  width: auto !important;
+  min-width: 240px;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.calendarContainer {
+  display: flex;
+  gap: 12px;
+}
+
+.calendarMain {
+  background: var(--background-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+  min-width: 240px;
+}
+
+.rangeOptions {
+  background: var(--background-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: fit-content;
+  min-width: 140px;
+}
+
+.rangeOptionsTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.rangeOptionButton {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: left;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.rangeOptionButton::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--primary-color);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.rangeOptionButton:hover::before {
+  opacity: 0.1;
+}
+
+.rangeOptionSelected {
+  color: var(--primary-color);
+  font-weight: 500;
+  background-color: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+.rangeOptionSelected::before {
+  opacity: 0.15;
+}
+
+@media (max-width: 768px) {
+  .modalWithOptions {
+    width: calc(100% - 32px) !important;
+    max-width: 480px !important;
+  }
+
+  .calendarContainer {
+    flex-direction: column-reverse;
+  }
+
+  .rangeOptions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .rangeOptionsTitle {
+    width: 100%;
+    margin-bottom: 2px;
+  }
+
+  .rangeOptionButton {
+    flex: 1;
+    min-width: calc(50% - 3px);
+    padding: 6px 8px;
+    text-align: center;
+    white-space: nowrap;
   }
 }

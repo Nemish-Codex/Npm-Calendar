@@ -22,92 +22,101 @@ export const TimePicker: React.FC<Props> = ({
 
   return (
     <div className={styles.timePicker}>
-      <div className={styles.flex}>
+      <div className={styles.timeSection}>
         <div className={styles.timeColumn}>
-          <svg
+          <button
             onClick={() => setHour((h) => (h === 12 ? 1 : h + 1))}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className={styles.timeCell}
+            className={styles.timeButton}
           >
-            <path d="m18 15-6-6-6 6" />
-          </svg>
-
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m18 15-6-6-6 6" />
+            </svg>
+          </button>
           <div className={styles.timeText}>{format(hour)}</div>
-
-          <svg
+          <button
             onClick={() => setHour((h) => (h === 1 ? 12 : h - 1))}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className={styles.timeCell}
+            className={styles.timeButton}
           >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
         </div>
+        <div className={styles.timeSeparator}>:</div>
         <div className={styles.timeColumn}>
-          <svg
+          <button
             onClick={() => setMinute((m) => (m + 1) % 60)}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className={styles.timeCell}
+            className={styles.timeButton}
           >
-            <path d="m18 15-6-6-6 6" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m18 15-6-6-6 6" />
+            </svg>
+          </button>
           <div className={styles.timeText}>{format(minute)}</div>
-
-          <svg
+          <button
             onClick={() => setMinute((m) => (m - 1 + 60) % 60)}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            className={styles.timeCell}
+            className={styles.timeButton}
           >
-            <path d="m6 9 6 6 6-6" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </button>
         </div>
       </div>
-      <div className={styles.timeColumn}>
-        <div>
-          <button
-            onClick={() => setIsAM(true)}
-            className={isAM ? styles.active : styles.inactive}
-          >
-            AM
-          </button>
-          <button
-            onClick={() => setIsAM(false)}
-            className={!isAM ? styles.active : styles.inactive}
-          >
-            PM
-          </button>
-        </div>
+      <div className={styles.ampmToggle}>
+        <div className={styles.ampmSlider} data-am={isAM} />
+        <button
+          onClick={() => setIsAM(true)}
+          className={`${styles.ampmButton} ${isAM ? styles.active : ""}`}
+        >
+          AM
+        </button>
+        <button
+          onClick={() => setIsAM(false)}
+          className={`${styles.ampmButton} ${!isAM ? styles.active : ""}`}
+        >
+          PM
+        </button>
       </div>
     </div>
   );
