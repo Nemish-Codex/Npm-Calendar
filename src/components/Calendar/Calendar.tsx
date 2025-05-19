@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { CalendarHeader } from "./CalendarHeader";
 import { CalendarGrid } from "./CalendarGrid";
 import { TimePicker } from "./TimePicker";
-import { CalendarProps, CalendarVariant } from "./types";
+import { CalendarProps } from "./types";
 import styles from "./Calendar.module.css";
 import { formatDate as utilFormatDate, isSameDate } from "./utils";
 
@@ -217,7 +217,6 @@ export const Calendar: React.FC<CalendarProps> = ({
       const spaceAbove = rect.top;
       const spaceBelow = viewportHeight - rect.bottom;
       const spaceLeft = rect.left;
-      const spaceRight = viewportWidth - rect.right;
 
       // Determine vertical position
       if (spaceBelow >= modalHeight + padding) {
