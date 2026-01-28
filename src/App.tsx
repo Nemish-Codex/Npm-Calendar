@@ -3,19 +3,54 @@ import "./App.css";
 import { Calendar } from "./components/Calendar/Calendar";
 import { CalendarVariant } from "./components/Calendar/types";
 
+const variants: {
+  id: CalendarVariant;
+  title: string;
+  description: string;
+  icon: string;
+  gradient: string;
+}[] = [
+  {
+    id: "default",
+    title: "Default Calendar",
+    description:
+      "Clean and simple single date selection with intuitive navigation",
+    icon: "📅",
+    gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  },
+  {
+    id: "time",
+    title: "DateTime Picker",
+    description:
+      "Select both date and time with precision hour and minute controls",
+    icon: "⏰",
+    gradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+  },
+  {
+    id: "range",
+    title: "Date Range",
+    description: "Select a start and end date with interactive range preview",
+    icon: "📆",
+    gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+  },
+  {
+    id: "multi",
+    title: "Multi-Select",
+    description:
+      "Select multiple individual dates for flexible scheduling needs",
+    icon: "✨",
+    gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+  },
+];
+
 function App() {
-  const [selectedVariant, setSelectedVariant] =
+  const [activeVariant, setActiveVariant] =
     useState<CalendarVariant>("default");
 
-  const handleVariantChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedVariant(event.target.value as CalendarVariant);
-  };
-
-  // Common calendar props
   const calendarProps = {
     placement: "auto" as const,
     format: "dd/m/yy",
-    onChange: (e: any) => console.log(e),
+    onChange: (e: any) => console.log("Selected:", e),
     theme: {
       primaryColor: "#7e6bf5",
       backgroundColor: "#fff",
@@ -26,107 +61,221 @@ function App() {
   };
 
   return (
-    <div>
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: "18px",
-          boxShadow: "0 10px 30px rgba(44, 45, 90, 0.1)",
-          padding: "2.5rem 2rem",
-          maxWidth: "400px",
-          width: "100%",
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "25px" }}>
-          <h2 style={{ margin: "0 0 8px", fontSize: "24px", color: "#2a2a4a" }}>
-            Calendar Component Demo
-          </h2>
-          <p style={{ margin: 0, color: "#666", fontSize: "14px" }}>
-            Try different calendar variants
-          </p>
-        </div>
+    <div className="app-container">
+      {/* Animated Background */}
+      <div className="bg-gradient"></div>
+      <div className="bg-pattern"></div>
 
-        <div style={{ marginBottom: "25px" }}>
-          <label
-            htmlFor="variant-select"
-            style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: 500,
-              fontSize: "15px",
-              color: "#444",
-            }}
+      {/* Hero Section */}
+      <header className="hero">
+        <div className="hero-badge">
+          <span className="badge-icon">📦</span>
+          <span>npm package</span>
+        </div>
+        <h1 className="hero-title">
+          <span className="title-gradient">React Calendar</span>
+          <span className="title-secondary">Component</span>
+        </h1>
+        <p className="hero-subtitle">
+          A beautiful, customizable, and feature-rich calendar component for
+          React applications. Built with TypeScript and zero dependencies.
+        </p>
+        <div className="hero-stats">
+          <div className="stat">
+            <span className="stat-value">4</span>
+            <span className="stat-label">Variants</span>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <span className="stat-value">100%</span>
+            <span className="stat-label">TypeScript</span>
+          </div>
+          <div className="stat-divider"></div>
+          <div className="stat">
+            <span className="stat-value">0</span>
+            <span className="stat-label">Dependencies</span>
+          </div>
+        </div>
+        <div className="hero-cta">
+          <code className="install-command">
+            <span className="command-prefix">$</span> npm install
+            @codex/react-calendar
+          </code>
+          <button
+            className="copy-btn"
+            onClick={() =>
+              navigator.clipboard.writeText("npm install @codex/react-calendar")
+            }
           >
-            Select Calendar Variant:
-          </label>
-          <select
-            id="variant-select"
-            value={selectedVariant}
-            onChange={handleVariantChange}
-            style={{
-              width: "100%",
-              padding: "10px 14px",
-              borderRadius: "8px",
-              border: "1px solid #ddd",
-              fontSize: "14px",
-              cursor: "pointer",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-              appearance: "none",
-              backgroundImage:
-                'url(\'data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>\')',
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 10px center",
-            }}
-          >
-            <option value="default">Default</option>
-            <option value="time">Time Picker</option>
-            <option value="range">Date Range</option>
-            <option value="multi">Multi-Select</option>
-          </select>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </button>
         </div>
+      </header>
 
-        <div
-          style={{
-            marginBottom: "20px",
-            padding: "15px",
-            backgroundColor: "#f8f9fd",
-            borderRadius: "8px",
-            borderLeft: "4px solid #7e6bf5",
-          }}
-        >
-          <h3 style={{ margin: 0, fontSize: "16px", color: "#444" }}>
-            {selectedVariant === "default" && "Default Calendar"}
-            {selectedVariant === "time" && "Time Picker Calendar"}
-            {selectedVariant === "range" && "Date Range Calendar"}
-            {selectedVariant === "multi" && "Multi-Select Calendar"}
-          </h3>
-          <p style={{ fontSize: "14px", color: "#666", margin: "8px 0 0" }}>
-            {selectedVariant === "default" && "Select a single date"}
-            {selectedVariant === "time" && "Select a date and time"}
-            {selectedVariant === "range" &&
-              "Select a date range - after selecting the first date, hover to see range preview"}
-            {selectedVariant === "multi" &&
-              "Select multiple dates by clicking them, click again to deselect"}
+      {/* Variant Selector */}
+      <section className="variants-section">
+        <h2 className="section-title">Choose Your Variant</h2>
+        <p className="section-subtitle">Select a variant to see it in action</p>
+
+        <div className="variant-cards">
+          {variants.map((variant) => (
+            <button
+              key={variant.id}
+              className={`variant-card ${activeVariant === variant.id ? "active" : ""}`}
+              onClick={() => setActiveVariant(variant.id)}
+            >
+              <div
+                className="card-glow"
+                style={{ background: variant.gradient }}
+              ></div>
+              <div className="card-content">
+                <span className="card-icon">{variant.icon}</span>
+                <h3 className="card-title">{variant.title}</h3>
+                <p className="card-description">{variant.description}</p>
+              </div>
+              {activeVariant === variant.id && (
+                <div className="active-indicator">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  >
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Demo Section */}
+      <section className="demo-section">
+        <div className="demo-container">
+          <div className="demo-info">
+            <div
+              className="demo-badge"
+              style={{
+                background: variants.find((v) => v.id === activeVariant)
+                  ?.gradient,
+              }}
+            >
+              {variants.find((v) => v.id === activeVariant)?.icon}
+            </div>
+            <h2 className="demo-title">
+              {variants.find((v) => v.id === activeVariant)?.title}
+            </h2>
+            <p className="demo-description">
+              {variants.find((v) => v.id === activeVariant)?.description}
+            </p>
+
+            <div className="feature-list">
+              <div className="feature-item">
+                <svg
+                  className="feature-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Fully customizable themes</span>
+              </div>
+              <div className="feature-item">
+                <svg
+                  className="feature-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Keyboard navigation support</span>
+              </div>
+              <div className="feature-item">
+                <svg
+                  className="feature-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Responsive & mobile-friendly</span>
+              </div>
+              <div className="feature-item">
+                <svg
+                  className="feature-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Lightweight & performant</span>
+              </div>
+            </div>
+
+            <div className="code-preview">
+              <div className="code-header">
+                <span className="code-dot red"></span>
+                <span className="code-dot yellow"></span>
+                <span className="code-dot green"></span>
+                <span className="code-filename">App.tsx</span>
+              </div>
+              <pre className="code-content">
+                {`import { Calendar } from '@codex/react-calendar';
+
+<Calendar
+  variant="${activeVariant}"
+  format="dd/mm/yyyy"
+  onChange={(date) => console.log(date)}
+  theme={{
+    primaryColor: "#7e6bf5",
+    backgroundColor: "#fff"
+  }}
+/>`}
+              </pre>
+            </div>
+          </div>
+
+          <div className="demo-calendar">
+            <div className="calendar-wrapper">
+              <Calendar variant={activeVariant} {...calendarProps} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-content">
+          <p className="footer-text">
+            Built with ❤️ by{" "}
+            <span className="footer-highlight">Codex Team</span>
+          </p>
+          <p className="footer-note">
+            Open the browser console to see selected values
           </p>
         </div>
-
-        <div style={{ padding: "10px 0" }}>
-          <Calendar variant={selectedVariant} {...calendarProps} />
-        </div>
-
-        <div
-          style={{
-            marginTop: "25px",
-            borderTop: "1px solid #eee",
-            paddingTop: "15px",
-            textAlign: "center",
-          }}
-        >
-          <p style={{ fontSize: "13px", color: "#888", margin: 0 }}>
-            Selected values will be logged to the browser console
-          </p>
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }

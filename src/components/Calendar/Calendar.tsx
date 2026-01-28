@@ -134,7 +134,7 @@ export const Calendar: React.FC<CalendarProps> = ({
 
     if (variant === "range" && selectedDates.length === 2) {
       return `${formatDate(selectedDates[0])} - ${formatDate(
-        selectedDates[1]
+        selectedDates[1],
       )}`;
     }
 
@@ -149,14 +149,12 @@ export const Calendar: React.FC<CalendarProps> = ({
     if (!inputRef.current) return;
 
     const rect = inputRef.current.getBoundingClientRect();
-    const modalWidth = 240;
-    const modalHeight = variant === "time" ? 380 : 340;
-    const padding = 8;
+    const modalWidth = 260;
+    const modalHeight = variant === "time" ? 400 : 360;
+    const padding = 12;
 
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
-    const scrollY = window.scrollY;
-    const scrollX = window.scrollX;
 
     // Mobile view - try to position near input first
     if (viewportWidth <= 768) {
@@ -171,7 +169,7 @@ export const Calendar: React.FC<CalendarProps> = ({
           left: "50%",
           transform: "translateX(-50%)",
           width: "calc(100% - 32px)",
-          maxWidth: "260px",
+          maxWidth: "280px",
           zIndex,
         });
       } else if (spaceAbove >= modalHeight + padding) {
@@ -182,7 +180,7 @@ export const Calendar: React.FC<CalendarProps> = ({
           left: "50%",
           transform: "translateX(-50%)",
           width: "calc(100% - 32px)",
-          maxWidth: "260px",
+          maxWidth: "280px",
           zIndex,
         });
       } else {
@@ -193,7 +191,7 @@ export const Calendar: React.FC<CalendarProps> = ({
           top: "50%",
           transform: "translate(-50%, -50%)",
           width: "calc(100% - 32px)",
-          maxWidth: "260px",
+          maxWidth: "280px",
           zIndex,
         });
       }
@@ -213,31 +211,28 @@ export const Calendar: React.FC<CalendarProps> = ({
     } = {};
 
     if (placement === "auto") {
-      // Calculate available space in all directions
+      // Calculate available space in vertical directions
       const spaceAbove = rect.top;
       const spaceBelow = viewportHeight - rect.bottom;
-      const spaceLeft = rect.left;
 
       // Determine vertical position
       if (spaceBelow >= modalHeight + padding) {
         // Prefer below
-        position.top = `${rect.bottom + scrollY + padding}px`;
+        position.top = `${rect.bottom + padding}px`;
       } else if (spaceAbove >= modalHeight + padding) {
-        // Try above
-        position.top = `${rect.top + scrollY - modalHeight - 10 - padding}px`;
+        // Try above - use bottom positioning for proper alignment
+        position.bottom = `${viewportHeight - rect.top + padding}px`;
       } else {
         // Center vertically in the available space
         const availableHeight = Math.max(spaceAbove, spaceBelow);
         if (spaceBelow >= spaceAbove) {
-          position.top = `${rect.bottom + scrollY + padding}px`;
+          position.top = `${rect.bottom + padding}px`;
           if (modalHeight > availableHeight) {
             position.maxHeight = `${availableHeight - padding * 2}px`;
             position.overflowY = "auto";
           }
         } else {
-          position.bottom = `${
-            viewportHeight - rect.top + scrollY - padding
-          }px`;
+          position.bottom = `${viewportHeight - rect.top - padding}px`;
           if (modalHeight > availableHeight) {
             position.maxHeight = `${availableHeight - padding * 2}px`;
             position.overflowY = "auto";
@@ -245,48 +240,53 @@ export const Calendar: React.FC<CalendarProps> = ({
         }
       }
 
-      // Determine horizontal position
-      const preferredLeft = rect.left + scrollX;
-      const preferredRight = preferredLeft + modalWidth;
+      // Determine horizontal position - center modal relative to input
+      const inputCenterX = rect.left + rect.width / 2;
+      const modalHalfWidth = modalWidth / 2;
+      const centeredLeft = inputCenterX - modalHalfWidth;
+      const centeredRight = inputCenterX + modalHalfWidth;
 
-      if (preferredRight <= viewportWidth - padding) {
-        // Align with input left if fits
-        position.left = `${preferredLeft}px`;
-      } else if (spaceLeft >= modalWidth + padding) {
-        // Align with input right if fits
-        position.right = `${viewportWidth - rect.right - scrollX}px`;
+      if (centeredLeft >= padding && centeredRight <= viewportWidth - padding) {
+        // Center relative to input if it fits within viewport with padding
+        position.left = `${centeredLeft}px`;
+      } else if (centeredRight > viewportWidth - padding) {
+        // Modal would overflow right, align to right edge with padding
+        position.right = `${padding}px`;
+      } else if (centeredLeft < padding) {
+        // Modal would overflow left, align to left edge with padding
+        position.left = `${padding}px`;
       } else {
-        // Center horizontally if no space on either side
+        // Fallback: center in viewport
         position.left = "50%";
         position.transform = "translateX(-50%)";
       }
     } else {
       switch (placement) {
         case "top":
-          position.bottom = `${viewportHeight - rect.top + scrollY}px`;
-          position.left = `${rect.left + scrollX}px`;
+          position.bottom = `${viewportHeight - rect.top}px`;
+          position.left = `${rect.left}px`;
           position["data-placement"] = "top";
           break;
         case "bottom":
-          position.top = `${rect.bottom + scrollY}px`;
-          position.left = `${rect.left + scrollX}px`;
+          position.top = `${rect.bottom}px`;
+          position.left = `${rect.left}px`;
           position["data-placement"] = "bottom";
           break;
         case "left":
-          position.top = `${rect.top + scrollY}px`;
-          position.right = `${viewportWidth - rect.left + scrollX}px`;
+          position.top = `${rect.top}px`;
+          position.right = `${viewportWidth - rect.left}px`;
           position["data-placement"] = "left";
           break;
         case "right":
-          position.top = `${rect.top + scrollY}px`;
-          position.left = `${rect.right + scrollX}px`;
+          position.top = `${rect.top}px`;
+          position.left = `${rect.right}px`;
           position["data-placement"] = "right";
           break;
       }
     }
 
     setModalStyle({
-      position: "absolute",
+      position: "fixed",
       ...position,
       zIndex,
     });
@@ -339,6 +339,13 @@ export const Calendar: React.FC<CalendarProps> = ({
 
     if (showModal) {
       document.addEventListener("mousedown", handleClickOutside);
+      // Lock body scroll when modal is open
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        document.body.style.overflow = originalOverflow;
+      };
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showModal]);
@@ -407,8 +414,8 @@ export const Calendar: React.FC<CalendarProps> = ({
                   new Date(
                     currentDate.getFullYear(),
                     currentDate.getMonth() - 1,
-                    1
-                  )
+                    1,
+                  ),
                 )
               }
               onNext={() =>
@@ -416,8 +423,8 @@ export const Calendar: React.FC<CalendarProps> = ({
                   new Date(
                     currentDate.getFullYear(),
                     currentDate.getMonth() + 1,
-                    1
-                  )
+                    1,
+                  ),
                 )
               }
               onMonthChange={handleMonthChange}

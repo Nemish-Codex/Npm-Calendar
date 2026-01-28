@@ -2,7 +2,8 @@
   position: relative;
   width: 100%;
   margin: auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
@@ -50,10 +51,10 @@
 .modalContent {
   position: absolute;
   background: var(--background-color);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  width: 240px;
-  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 260px;
+  padding: 12px;
   transition: transform 0.2s ease;
 }
 
@@ -165,22 +166,25 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 4px;
   margin-bottom: 6px;
+  width: 100%;
 }
 
 .dayLabel {
-  padding: 2px 0;
+  padding: 4px 0;
   text-align: center;
-  font-size: 10px;
+  font-size: 11px;
   color: #999;
   font-weight: 500;
+  width: 100%;
 }
 
 .dayCell {
-  height: 28px;
-  width: 28px;
-  border-radius: 4px;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 32px;
+  border-radius: 6px;
   border: none;
   display: flex;
   align-items: center;
@@ -190,7 +194,7 @@
   color: var(--text-color);
   transition: all 0.15s ease;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
   background: transparent;
 }
 
@@ -394,9 +398,9 @@
     left: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
-    width: 260px;
+    width: 280px;
     max-width: calc(100% - 32px);
-    padding: 12px;
+    padding: 14px;
   }
 
   .dayCell {
@@ -515,7 +519,7 @@
 @media (max-width: 768px) {
   .modalWithOptions {
     width: calc(100% - 32px) !important;
-    max-width: 480px !important;
+    max-width: 520px !important;
   }
 
   .calendarContainer {
