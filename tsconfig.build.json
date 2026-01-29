@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationDir": "dist",
+    "emitDeclarationOnly": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true
+  },
+  "include": ["src/components", "src/index.ts", "src/vite-env.d.ts"],
+  "exclude": [
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/**/*.test.tsx",
+    "src/**/*.stories.tsx"
+  ]
+}

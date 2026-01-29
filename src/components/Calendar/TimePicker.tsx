@@ -104,7 +104,7 @@ export const TimePicker: React.FC<Props> = ({
         </div>
       </div>
       <div className={styles.ampmToggle}>
-        <div className={styles.ampmSlider} data-am={isAM} />
+        <div className={styles.ampmSlider} data-am={isAM.toString()} />
         <button
           onClick={() => setIsAM(true)}
           className={`${styles.ampmButton} ${isAM ? styles.active : ""}`}

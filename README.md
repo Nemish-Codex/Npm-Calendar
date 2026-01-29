@@ -1,54 +1,115 @@
-# React + TypeScript + Vite
+# Codex React Calendar
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, highly customizable, and lightweight calendar component for React applications. Built with TypeScript and zero dependencies.
 
-Currently, two official plugins are available:
+![Calendar Preview](https://github.com/codex/react-calendar/raw/main/preview.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- 🎨 **4 Variants**: Default, DateTime Picker, Date Range, and Multi-Select
+- 🌙 **Theme support**: Fully customizable colors and styles
+- 📱 **Responsive**: Logic to position modal intelligently on all devices
+- 🔒 **Scroll Lock**: improved UX by preventing background scrolling
+- ⌨️ **TypeScript**: First-class type support
+- 🪶 **Lightweight**: Zero runtime dependencies (peers: react, react-dom)
+- 🧩 **Flexible**: Custom input rendering, validation, and localized formatting
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Installation
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+npm install codex-react-calendar
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Basic Usage
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```tsx
+import { useState } from "react";
+import { Calendar } from "codex-react-calendar";
+import "codex-react-calendar/style.css";
+
+function App() {
+  const [date, setDate] = useState<Date | null>(new Date());
+
+  return (
+    <Calendar
+      value={date}
+      onChange={(newDate) => setDate(newDate as Date)}
+      format="dd/mm/yyyy"
+    />
+  );
+}
 ```
+
+### Date Time Picker
+
+```tsx
+<Calendar
+  variant="time"
+  value={date}
+  onChange={setDate}
+  format="dd/mm/yyyy HH:MM:ss"
+/>
+```
+
+### Date Range Picker
+
+```tsx
+const [range, setRange] = useState<Date[]>([]);
+
+<Calendar
+  variant="range"
+  value={range}
+  onChange={setRange} // Returns [startDate, endDate]
+  minDate={new Date()}
+  yearRange={[2024, 2030]}
+/>;
+```
+
+### Multi-Select Dates
+
+```tsx
+const [dates, setDates] = useState<Date[]>([]);
+
+<Calendar
+  variant="multi"
+  value={dates}
+  onChange={setDates} // Returns array of selected dates
+/>;
+```
+
+## Props
+
+| Prop        | Type                                               | Default          | Description                        |
+| ----------- | -------------------------------------------------- | ---------------- | ---------------------------------- |
+| `variant`   | `'default' \| 'time' \| 'range' \| 'multi'`        | `'default'`      | The operating mode of the calendar |
+| `value`     | `Date \| Date[] \| null`                           | `null`           | Controlled value state             |
+| `onChange`  | `(value: Date \| Date[] \| null) => void`          | -                | Callback when value changes        |
+| `format`    | `string`                                           | `'dd/mm/yyyy'`   | Date display format                |
+| `theme`     | `CalendarTheme`                                    | (default styles) | Object to override colors          |
+| `minDate`   | `Date`                                             | -                | Minimum selectable date            |
+| `maxDate`   | `Date`                                             | -                | Maximum selectable date            |
+| `disabled`  | `boolean`                                          | `false`          | Disable input and interaction      |
+| `clearable` | `boolean`                                          | `true`           | Show clear button                  |
+| `placement` | `'auto' \| 'top' \| 'bottom' \| 'left' \| 'right'` | `'auto'`         | Modal positioning preference       |
+
+## Customization
+
+You can customize the look and feel by passing a `theme` object:
+
+```tsx
+<Calendar
+  theme={{
+    primaryColor: "#7e6bf5",
+    backgroundColor: "#ffffff",
+    textColor: "#333333",
+    todayColor: "#e6e6e6",
+    hoverColor: "#f0f0f0",
+  }}
+/>
+```
+
+## License
+
+MIT © Codex
